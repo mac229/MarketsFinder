@@ -10,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.maciejkozlowski.marketsfinder.Data.Place;
 import com.maciejkozlowski.marketsfinder.MapsActivity;
 
@@ -22,6 +23,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -76,7 +78,7 @@ public class PlacesDownloader extends IntentService {
                 HttpConnectionParams.setConnectionTimeout(httpParameters, 3000); // 3s max for connection
                 HttpConnectionParams.setSoTimeout(httpParameters, 4000); // 4s max to get data
                 HttpClient client = new DefaultHttpClient(httpParameters);
-                HttpGet httpget = new HttpGet("http://www.promoceny.pl/sklepy/szukaj/biedronka/p/1");
+                HttpGet httpget = new HttpGet("http://www.promoceny.pl/sklepy/szukaj/biedronka/p/" + i);
                 HttpResponse response = client.execute(httpget); // Executeit
                 HttpEntity entity = response.getEntity();
                 InputStream is = entity.getContent(); // Create an InputStream with the response
@@ -90,8 +92,9 @@ public class PlacesDownloader extends IntentService {
                         Place place = new Place();
                         place.address = fScan.match().group(1);
                         place.hours = fScan.match().group(3);
+                        LatLng latLng = getLocationFromAddress(place.address);
+                        Log.i("#hashtag", place.address + " = " + latLng.longitude + ", " + latLng.latitude);
                         list.add(place);
-                        Log.i("#hashtag", place.address);
                     }
                 }
                 is.close(); // Close the stream
@@ -103,12 +106,11 @@ public class PlacesDownloader extends IntentService {
         return list;
     }
 
+    public LatLng getLocationFromAddress(String strAddress) {
 
-    private ArrayList<Double> getLocationFromAddress(String strAddress) {
-
-        Geocoder coder = new Geocoder(this);
+        Geocoder coder = new Geocoder(getApplicationContext());
         List<Address> address;
-        ArrayList<Double> p1 = new ArrayList<>();
+        LatLng p1 = null;
 
         try {
             address = coder.getFromLocationName(strAddress, 5);
@@ -119,20 +121,26 @@ public class PlacesDownloader extends IntentService {
             location.getLatitude();
             location.getLongitude();
 
-            p1.add(location.getLatitude() * 1E6);
-            p1.add(location.getLongitude() * 1E6);
+            p1 = new LatLng(location.getLatitude(), location.getLongitude() );
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            p1 = new LatLng(0.0, 0.0);
+            ex.printStackTrace();
         }
+
         return p1;
     }
 
-    private JSONObject getLocationInfo(){
+    private JSONObject getLocationInfo(String address){
         StringBuilder stringBuilder = new StringBuilder();
         try {
-
-            HttpPost httppost = new HttpPost("http://maps.google.com/maps/api/geocode/json?address=" + Place.MARKET + "&sensor=false");
+            address = address.replaceAll("ł","l");
+            address = address.replaceAll("ó","o");
+            address = address.replaceAll("ń","n");
+            address = address.replaceAll("ę","e");
+            address = address.replaceAll(" ","%20");
+            address = address.replaceAll("ul","%20");
+            HttpPost httppost = new HttpPost("http://maps.google.com/maps/api/geocode/json?address=" + address + "&sensor=false");
             HttpClient client = new DefaultHttpClient();
             HttpResponse response;
             stringBuilder = new StringBuilder();
@@ -156,6 +164,29 @@ public class PlacesDownloader extends IntentService {
         }
 
         return jsonObject;
+    }
+
+    public static ArrayList<Double> getLatLon(JSONObject jsonObject) {
+
+        ArrayList<Double> latLon = new ArrayList<>();
+        try {
+            Double longitute = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
+                    .getJSONObject("geometry").getJSONObject("location")
+                    .getDouble("lng");
+
+            Double latitude = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
+                    .getJSONObject("geometry").getJSONObject("location")
+                    .getDouble("lat");
+
+            latLon.add(latitude);
+            latLon.add(longitute);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            latLon.add(0.0);
+            latLon.add(0.0);
+        }
+
+        return latLon;
     }
 
     public void writeToFile(Context mContext, String data, String name) {
