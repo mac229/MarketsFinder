@@ -17,7 +17,7 @@ public class PlaceDetailsActivity extends ActionBarActivity {
         Bundle extras = getIntent().getExtras();
         String title = extras.getString("name");
 
-        TextView textView = (TextView) findViewById(R.id.text_title);
+        TextView textView = (TextView) findViewById(R.id.text_address);
         textView.setText(title);
     }
 
