@@ -166,7 +166,7 @@ public class PlacesDownloader extends IntentService {
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
-        writeToFile(getApplicationContext(), JSONobject.toString(), Place.MARKET);
+        writeToFile(getApplicationContext(), JSONobject.toString(), Place.MARKET + "_" + MyLocation.province);
         return list;
     }
 

@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -56,10 +57,12 @@ public class MapsActivity extends FragmentActivity {
     }
 
     private void setMarkers() {
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(MyLocation.lat, MyLocation.lon), 12.0f));
+
         if (map != null) {
-            for (int i = 0; i < 2; i++) {
-                final String name = "title " + i;
-                MarkerOptions marker = new MarkerOptions().position(new LatLng(10 * i, 10 * i)).title(name);
+            for (int i = 0; i < places.size(); i++) {
+                MarkerOptions marker = new MarkerOptions().position(
+                        new LatLng(places.get(i).lat, places.get(i).lon));
                 map.addMarker(marker);
             }
 

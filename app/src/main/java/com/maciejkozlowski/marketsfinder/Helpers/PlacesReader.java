@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.maciejkozlowski.marketsfinder.Data.Place;
+import com.maciejkozlowski.marketsfinder.Localization.MyLocation;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,9 +17,9 @@ import java.util.ArrayList;
 public class PlacesReader {
 
     public static ArrayList<Place> getPlaces(Context context){
-
+        // TODO: shared preferences last provincy
         ArrayList<Place> list;
-        JSONObject jsonObjectPlaces = readJSONObject(context, Place.MARKET);
+        JSONObject jsonObjectPlaces = readJSONObject(context, Place.MARKET + "_" + MyLocation.province);
         list = getList(jsonObjectPlaces);
 
         return list;
@@ -45,21 +46,23 @@ public class PlacesReader {
 
     private static ArrayList<Place> getList(JSONObject jsonObject) {
         ArrayList<Place> list = new ArrayList<>();
-        try {
-            JSONArray jsonArrayPlaces = jsonObject.getJSONArray("Items");
-            Log.i("#hashtag", String.valueOf(jsonArrayPlaces.length()));
-            for (int i = 0; i < jsonArrayPlaces.length(); i++){
-                JSONObject jsonPlace = jsonArrayPlaces.getJSONObject(i);
-                Place place = new Place();
-                place.address = jsonPlace.getString("address");
-                place.hours = jsonPlace.getString("hours");
-                place.lat = jsonPlace.getDouble("lat");
-                place.lon = jsonPlace.getDouble("lon");
+        if (jsonObject != null) {
+            try {
+                JSONArray jsonArrayPlaces = jsonObject.getJSONArray("Items");
+                Log.i("#hashtag", String.valueOf(jsonArrayPlaces.length()));
+                for (int i = 0; i < jsonArrayPlaces.length(); i++) {
+                    JSONObject jsonPlace = jsonArrayPlaces.getJSONObject(i);
+                    Place place = new Place();
+                    place.address = jsonPlace.getString("address");
+                    place.hours = jsonPlace.getString("hours");
+                    place.lat = jsonPlace.getDouble("lat");
+                    place.lon = jsonPlace.getDouble("lon");
 
-                list.add(place);
+                    list.add(place);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
 
         return list;
