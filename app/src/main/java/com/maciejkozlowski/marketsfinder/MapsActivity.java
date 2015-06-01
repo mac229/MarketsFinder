@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.maciejkozlowski.marketsfinder.Data.Place;
+import com.maciejkozlowski.marketsfinder.Helpers.PlacesReader;
 import com.maciejkozlowski.marketsfinder.Services.PlacesDownloader;
 
 import java.util.ArrayList;
@@ -28,21 +29,54 @@ public class MapsActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
-        Intent intentService = new Intent(getApplicationContext(), PlacesDownloader.class);
-        startService(intentService);
-
-        setUpMapIfNeeded();
-       // Toast.makeText(getApplicationContext(), "Pobrano dane", Toast.LENGTH_SHORT).show();
-
+        startPlacesDownloader();
     }
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            places = PlacesReader.getPlaces(context);
             Toast.makeText(context, "Pobrano dane", Toast.LENGTH_SHORT).show();
+            setMarkers();
         }
     };
+
+
+    private void setUpMapIfNeeded() {
+        // Do a null check to confirm that we have not already instantiated the map.
+        if (mMap == null) {
+            // Try to obtain the map from the SupportMapFragment.
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+                    .getMap();
+            // Check if we were successful in obtaining the map.
+
+        }
+    }
+
+    private void setMarkers() {
+        if (mMap != null) {
+            for (int i = 0; i < 2; i++) {
+                final String name = "title " + i;
+                MarkerOptions marker = new MarkerOptions().position(new LatLng(10 * i, 10 * i)).title(name);
+                mMap.addMarker(marker);
+            }
+
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+                    Intent intent = new Intent(getApplicationContext(), PlaceDetailsActivity.class);
+                    intent.putExtra("name", marker.getTitle());
+                    startActivity(intent);
+                    return false;
+                }
+            });
+        }
+    }
+
+    private void startPlacesDownloader(){
+        Intent intentService = new Intent(getApplicationContext(), PlacesDownloader.class);
+        startService(intentService);
+    }
 
     @Override
     protected void onResume() {
@@ -56,40 +90,5 @@ public class MapsActivity extends FragmentActivity {
     public void onPause() {
         super.onPause();
         getApplicationContext().unregisterReceiver(broadcastReceiver);
-
-    }
-
-    private void setUpMapIfNeeded() {
-        // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-            // Check if we were successful in obtaining the map.
-            if (mMap != null) {
-                setUpMap();
-            }
-        }
-    }
-
-    private void setUpMap() {
-        for (int i = 0; i < 2; i++) {
-            final String name = "title " + i;
-            MarkerOptions marker = new MarkerOptions().position(new LatLng(10*i, 10*i)).title(name);
-            mMap.addMarker(marker);
-
-
-        }
-
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                Intent intent = new Intent(getApplicationContext(), PlaceDetailsActivity.class);
-                intent.putExtra("name", marker.getTitle());
-                startActivity(intent);
-                return false;
-            }
-        });
-
     }
 }

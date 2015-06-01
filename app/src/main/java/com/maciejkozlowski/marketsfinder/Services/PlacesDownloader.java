@@ -36,17 +36,11 @@ public class PlacesDownloader extends IntentService {
     protected void onHandleIntent(Intent intent) {
 
         JSONObject jsonLocationInfo;
-
         if (isWifiConnected()){
             jsonLocationInfo = getLocationInfo();
             writeToFile(getApplicationContext(), jsonLocationInfo.toString(), Place.MARKET);
         }
-        else {
-            jsonLocationInfo = readJSONObjet(getApplicationContext(), Place.MARKET);
-        }
 
-        //assert jsonLocationInfo != null;
-        Log.i("#hashtag", jsonLocationInfo.toString());
         sendInformation();
     }
 
@@ -102,28 +96,4 @@ public class PlacesDownloader extends IntentService {
             Log.e("Exception", "File write failed: " + e.toString());
         }
     }
-
-    private JSONObject readJSONObjet(Context mContext, String name){
-        String JSONString;
-        JSONObject JSONObject;
-        try {
-            InputStream inputStream = mContext.openFileInput(name);
-            int sizeOfJSONFile = inputStream.available();
-            byte[] bytes = new byte[sizeOfJSONFile];
-            inputStream.read(bytes);
-            inputStream.close();
-            JSONString = new String(bytes, "UTF-8");
-            JSONObject = new JSONObject(JSONString);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        catch (JSONException x) {
-            x.printStackTrace();
-            return null;
-        }
-        return JSONObject;
-    }
-
-
 }
