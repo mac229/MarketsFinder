@@ -7,12 +7,17 @@ import android.os.Bundle;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.maciejkozlowski.marketsfinder.Data.Place;
 import com.maciejkozlowski.marketsfinder.Services.PlacesDownloader;
+
+import java.util.ArrayList;
 
 public class MapsActivity extends FragmentActivity {
 
-    private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private GoogleMap mMap;
+    private ArrayList<Place> places = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +50,23 @@ public class MapsActivity extends FragmentActivity {
     }
 
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        for (int i = 0; i < 2; i++) {
+            final String name = "title " + i;
+            MarkerOptions marker = new MarkerOptions().position(new LatLng(10*i, 10*i)).title(name);
+            mMap.addMarker(marker);
+
+
+        }
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Intent intent = new Intent(getApplicationContext(), PlaceDetailsActivity.class);
+                intent.putExtra("name", marker.getTitle());
+                startActivity(intent);
+                return false;
+            }
+        });
+
     }
 }

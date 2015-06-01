@@ -36,6 +36,15 @@
         </activity>
 
         <service android:name=".Services.PlacesDownloader" />
+
+        <activity
+            android:name=".PlaceDetailsActivity"
+            android:label="@string/title_activity_place_details"
+            android:parentActivityName=".MapsActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.maciejkozlowski.marketsfinder.MapsActivity" />
+        </activity>
     </application>
 
 </manifest>

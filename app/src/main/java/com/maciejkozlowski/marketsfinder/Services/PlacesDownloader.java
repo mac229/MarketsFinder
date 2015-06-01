@@ -44,9 +44,10 @@ public class PlacesDownloader extends IntentService {
             jsonLocationInfo = readJSONObjet(getApplicationContext(), Place.MARKET);
         }
 
-        assert jsonLocationInfo != null;
+        //assert jsonLocationInfo != null;
         Log.i("#hashtag", jsonLocationInfo.toString());
     }
+
 
     private boolean isWifiConnected(){
         ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
