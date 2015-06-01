@@ -28,14 +28,6 @@ public class MapsActivity extends FragmentActivity {
     private GoogleMap map;
     private ArrayList<Place> places = new ArrayList<>();
 
-
-
-    public static double lon;
-    public static double lat;
-    LocationManager locationManager;
-    LocationListener locationListener;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +48,6 @@ public class MapsActivity extends FragmentActivity {
 
 
     private void setUpMapIfNeeded() {
-
         if (map == null) {
             map = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
             map.setMyLocationEnabled(true);

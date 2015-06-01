@@ -4,10 +4,8 @@ public class Place {
 
     public static final String MARKET = "Biedronka";
 
-    public String street;
-    public String number;
-    public String postal_code;
-    public String city;
+    public String address;
+    public String hours;
 
     public double lng;
     public double lat;
