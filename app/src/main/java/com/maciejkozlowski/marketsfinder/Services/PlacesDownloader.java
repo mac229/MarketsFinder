@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import android.util.Log;
 
 import com.maciejkozlowski.marketsfinder.Data.Place;
+import com.maciejkozlowski.marketsfinder.MapsActivity;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -46,8 +47,13 @@ public class PlacesDownloader extends IntentService {
 
         //assert jsonLocationInfo != null;
         Log.i("#hashtag", jsonLocationInfo.toString());
+        sendInformation();
     }
 
+    private void sendInformation(){
+        Intent intent = new Intent(MapsActivity.ACTION_GETTED_DATA);
+        sendBroadcast(intent);
+    }
 
     private boolean isWifiConnected(){
         ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);

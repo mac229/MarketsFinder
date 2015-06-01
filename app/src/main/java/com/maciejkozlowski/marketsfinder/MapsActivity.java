@@ -1,8 +1,12 @@
 package com.maciejkozlowski.marketsfinder;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -16,6 +20,7 @@ import java.util.ArrayList;
 
 public class MapsActivity extends FragmentActivity {
 
+    public static final String ACTION_GETTED_DATA = "com.maciejkozlowski.kfdpl.ACTION_GETTED_DATA";
     private GoogleMap mMap;
     private ArrayList<Place> places = new ArrayList<>();
 
@@ -28,12 +33,30 @@ public class MapsActivity extends FragmentActivity {
         startService(intentService);
 
         setUpMapIfNeeded();
+       // Toast.makeText(getApplicationContext(), "Pobrano dane", Toast.LENGTH_SHORT).show();
+
     }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Toast.makeText(context, "Pobrano dane", Toast.LENGTH_SHORT).show();
+        }
+    };
 
     @Override
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+        IntentFilter intentFilter = new IntentFilter(ACTION_GETTED_DATA);
+        getApplicationContext().registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getApplicationContext().unregisterReceiver(broadcastReceiver);
+
     }
 
     private void setUpMapIfNeeded() {
