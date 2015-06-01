@@ -2,6 +2,8 @@ package com.maciejkozlowski.marketsfinder.Data;
 
 public class Place {
 
+    public static final String market = "Biedronka";
+
     public String street;
     public String number;
     public String postal_code;
