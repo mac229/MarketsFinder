@@ -12,7 +12,6 @@ import com.maciejkozlowski.marketsfinder.Data.Place;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -21,6 +20,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 
 public class PlacesDownloader extends IntentService {
 
@@ -34,17 +34,18 @@ public class PlacesDownloader extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        if (isWifiConnected()){
-            JSONObject jsonLocationInfo = getLocationInfo();
-            Log.i("#hashtag", jsonLocationInfo.toString());
+        JSONObject jsonLocationInfo;
 
+        if (isWifiConnected()){
+            jsonLocationInfo = getLocationInfo();
+            writeToFile(getApplicationContext(), jsonLocationInfo.toString(), Place.MARKET);
         }
         else {
-            Log.i("#hashtag", "No WIFI connection");
-
+            jsonLocationInfo = readJSONObjet(getApplicationContext(), Place.MARKET);
         }
 
-
+        assert jsonLocationInfo != null;
+        Log.i("#hashtag", jsonLocationInfo.toString());
     }
 
     private boolean isWifiConnected(){
@@ -58,7 +59,7 @@ public class PlacesDownloader extends IntentService {
         StringBuilder stringBuilder = new StringBuilder();
         try {
 
-            HttpPost httppost = new HttpPost("http://maps.google.com/maps/api/geocode/json?address=" + Place.market + "&sensor=false");
+            HttpPost httppost = new HttpPost("http://maps.google.com/maps/api/geocode/json?address=" + Place.MARKET + "&sensor=false");
             HttpClient client = new DefaultHttpClient();
             HttpResponse response;
             stringBuilder = new StringBuilder();
@@ -78,10 +79,44 @@ public class PlacesDownloader extends IntentService {
         try {
             jsonObject = new JSONObject(stringBuilder.toString());
         } catch (JSONException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
         return jsonObject;
     }
+
+    public void writeToFile(Context mContext, String data, String name) {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(mContext.openFileOutput(name, Context.MODE_PRIVATE));
+            outputStreamWriter.write(data);
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+    }
+
+    private JSONObject readJSONObjet(Context mContext, String name){
+        String JSONString;
+        JSONObject JSONObject;
+        try {
+            InputStream inputStream = mContext.openFileInput(name);
+            int sizeOfJSONFile = inputStream.available();
+            byte[] bytes = new byte[sizeOfJSONFile];
+            inputStream.read(bytes);
+            inputStream.close();
+            JSONString = new String(bytes, "UTF-8");
+            JSONObject = new JSONObject(JSONString);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        catch (JSONException x) {
+            x.printStackTrace();
+            return null;
+        }
+        return JSONObject;
+    }
+
+
 }
