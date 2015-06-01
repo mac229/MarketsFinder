@@ -17,35 +17,14 @@ public class PlacesReader {
 
     public static ArrayList<Place> getPlaces(Context context){
 
-        ArrayList<Place> list = new ArrayList<>();
-        JSONObject jsonObjectPlaces = readJSONObjet(context, Place.MARKET);
+        ArrayList<Place> list;
+        JSONObject jsonObjectPlaces = readJSONObject(context, Place.MARKET);
         list = getList(jsonObjectPlaces);
 
         return list;
     }
 
-    private static ArrayList<Place> getList(JSONObject jsonObject) {
-        // TODO: implement method
-        ArrayList<Place> list = new ArrayList<>();
-        try {
-            JSONArray jsonArrayPlaces = (JSONArray) jsonObject.get("results");
-            Log.i("#hashtag", String.valueOf(jsonArrayPlaces.length()));
-            Place place = new Place();
-            String longitute = jsonArrayPlaces.getJSONObject(0)
-                    .getString("place_id");
-
-            /*latitude = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
-                    .getJSONObject("geometry").getJSONObject("location")
-                    .getDouble("lat");
-*/
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return list;
-    }
-
-    private static JSONObject readJSONObjet(Context mContext, String name){
+    private static JSONObject readJSONObject(Context mContext, String name){
 
         String JSONString;
         JSONObject JSONObject;
@@ -57,15 +36,33 @@ public class PlacesReader {
             inputStream.close();
             JSONString = new String(bytes, "UTF-8");
             JSONObject = new JSONObject(JSONString);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        catch (JSONException x) {
-            x.printStackTrace();
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
             return null;
         }
         return JSONObject;
+    }
+
+    private static ArrayList<Place> getList(JSONObject jsonObject) {
+        ArrayList<Place> list = new ArrayList<>();
+        try {
+            JSONArray jsonArrayPlaces = jsonObject.getJSONArray("Items");
+            Log.i("#hashtag", String.valueOf(jsonArrayPlaces.length()));
+            for (int i = 0; i < jsonArrayPlaces.length(); i++){
+                JSONObject jsonPlace = jsonArrayPlaces.getJSONObject(i);
+                Place place = new Place();
+                place.address = jsonPlace.getString("address");
+                place.hours = jsonPlace.getString("hours");
+                place.lat = jsonPlace.getDouble("lat");
+                place.lon = jsonPlace.getDouble("lon");
+
+                list.add(place);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return list;
     }
 
 }

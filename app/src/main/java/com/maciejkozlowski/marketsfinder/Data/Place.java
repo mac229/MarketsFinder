@@ -7,7 +7,7 @@ public class Place {
     public String address;
     public String hours;
 
-    public double lng;
+    public double lon;
     public double lat;
 
 }

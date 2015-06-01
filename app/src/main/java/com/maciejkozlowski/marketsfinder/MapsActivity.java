@@ -40,8 +40,9 @@ public class MapsActivity extends FragmentActivity {
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            //places = PlacesReader.getPlaces(context);
-            Toast.makeText(context, "Pobrano dane", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Zapisano dane", Toast.LENGTH_SHORT).show();
+            places = PlacesReader.getPlaces(context);
+            Toast.makeText(context, "Wczytano: " + places.size(), Toast.LENGTH_SHORT).show();
             setMarkers();
         }
     };
