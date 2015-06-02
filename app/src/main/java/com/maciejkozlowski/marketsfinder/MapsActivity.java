@@ -54,6 +54,7 @@ public class MapsActivity extends FragmentActivity {
             map = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
             map.setMyLocationEnabled(true);
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(52, 19), 5.5f));
+
         }
     }
 
