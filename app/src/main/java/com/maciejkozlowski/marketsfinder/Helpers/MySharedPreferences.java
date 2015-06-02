@@ -37,6 +37,7 @@ public class MySharedPreferences {
             editor.putString(province, MyLocation.province);
             editor.apply();
         }
+        Log.i("#hashtag", String.valueOf(MyLocation.lat));
         Log.i("#hashtag", MyLocation.province);
     }
 }

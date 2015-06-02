@@ -50,12 +50,12 @@ public class PlacesDownloader extends IntentService {
     protected void onHandleIntent(Intent intent) {
 
         if(MySharedPreferences.isFirstRun(getApplicationContext())) {
-            while (MyLocation.lat == 0);
+            while (MyLocation.lat == 0.0);
             MyLocation.province = getProvince();
             MySharedPreferences.disableFirstRun(getApplicationContext());
         } else {
-            for (int i = 0; i < 5; i++){
-                if(MyLocation.lat == 0){
+            for (int i = 0; i < 10; i++){
+                if(MyLocation.lat == 0.0){
                     wait(1000);
                 } else {
                     MyLocation.province = getProvince();
