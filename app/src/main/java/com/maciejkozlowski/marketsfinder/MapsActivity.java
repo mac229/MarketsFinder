@@ -34,20 +34,18 @@ public class MapsActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         startPlacesDownloader();
-        MyLocation myLocation = new MyLocation(getApplicationContext());
+        MyLocation.setMyLocation(getApplicationContext());
 
     }
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Toast.makeText(context, "Zapisano dane", Toast.LENGTH_SHORT).show();
             places = PlacesReader.getPlaces(context);
             Toast.makeText(context, "Wczytano: " + places.size(), Toast.LENGTH_SHORT).show();
             setMarkers();
         }
     };
-
 
     private void setUpMapIfNeeded() {
         if (map == null) {

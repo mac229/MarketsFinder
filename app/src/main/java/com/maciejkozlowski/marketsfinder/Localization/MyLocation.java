@@ -13,7 +13,7 @@ public class MyLocation {
     public static double lat;
     public static String province;
 
-    public MyLocation(final Context context) {
+    public static void setMyLocation(final Context context) {
 
         LocationListener locationListener = new LocationListener() {
             @Override

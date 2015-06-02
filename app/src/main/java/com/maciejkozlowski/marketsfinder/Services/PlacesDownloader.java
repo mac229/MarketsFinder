@@ -4,7 +4,6 @@ package com.maciejkozlowski.marketsfinder.Services;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.ConnectivityManager;
@@ -13,6 +12,7 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.maciejkozlowski.marketsfinder.Data.Place;
+import com.maciejkozlowski.marketsfinder.Helpers.MySharedPreferences;
 import com.maciejkozlowski.marketsfinder.Localization.MyLocation;
 import com.maciejkozlowski.marketsfinder.MapsActivity;
 
@@ -20,7 +20,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -40,7 +39,6 @@ import java.util.Scanner;
 
 public class PlacesDownloader extends IntentService {
 
-    public static final String MY_PREFS_NAME = "PREFS_PROVINCE";
     public static final String PLACE_DOWNLOADER_SERVICE_NAME =
             "com.maciejkozlowski.marketsfinder.PLACE_DOWNLOADER_SERVICE_NAME";
 
@@ -51,30 +49,22 @@ public class PlacesDownloader extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        while (MyLocation.lat == 0){
-            Log.i("#hashtag", "NIE POBRANO JESZCZE LOKALIZACJI");
-        }
-        MyLocation.province = getProvince();
-
-        // TODO: 1. class shared preferences
-        // TODO: 2. first run
-        // TODO: 3. dialog
-
-        if (MyLocation.province.equals("")) {
-            Log.i("##hashtag", "NO PROVINCE 1");
-            SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
-            MyLocation.province = prefs.getString("province", null);
-            if (MyLocation.province == null) {
-                Log.i("##hashtag", "NO PROVINCE 1");
-                sendInformation();
-                return;
-            }
+        if(MySharedPreferences.isFirstRun(getApplicationContext())) {
+            while (MyLocation.lat == 0);
+            MyLocation.province = getProvince();
+            MySharedPreferences.disableFirstRun(getApplicationContext());
         } else {
-            SharedPreferences.Editor editor = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE).edit();
-            editor.putString("province", MyLocation.province);
-            editor.apply();
+            for (int i = 0; i < 5; i++){
+                if(MyLocation.lat == 0){
+                    wait(1000);
+                } else {
+                    MyLocation.province = getProvince();
+                    break;
+                }
+            }
         }
-        Log.i("##hashtag", MyLocation.province);
+
+        MySharedPreferences.checkProvince(getApplicationContext());
 
         if (isWifiConnected()){
             getMarketsList();
@@ -83,17 +73,22 @@ public class PlacesDownloader extends IntentService {
         sendInformation();
     }
 
-    private void sendInformation(){
-        Intent intent = new Intent(MapsActivity.ACTION_GETTED_DATA);
-        sendBroadcast(intent);
-    }
+
 
     private String getProvince(){
-        String result = "";
+        String result;
         JSONObject jsonObject = getLocationInfo();
         result = getProvinceFromJSON(jsonObject);
 
         return result;
+    }
+
+    private void wait(int time){
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private JSONObject getLocationInfo(){
@@ -127,7 +122,7 @@ public class PlacesDownloader extends IntentService {
     }
 
     private String getProvinceFromJSON(JSONObject jsonObject) {
-        String result = "";
+        String result = null;
         try {
             JSONArray jsonArray = jsonObject.getJSONArray("results").getJSONObject(0)
                     .getJSONArray("address_components");
@@ -230,5 +225,10 @@ public class PlacesDownloader extends IntentService {
         catch (IOException e) {
             Log.e("Exception", "File write failed: " + e.toString());
         }
+    }
+
+    private void sendInformation(){
+        Intent intent = new Intent(MapsActivity.ACTION_GETTED_DATA);
+        sendBroadcast(intent);
     }
 }
