@@ -39,7 +39,7 @@ public class NotificationReceiver extends BroadcastReceiver {
                 .setContentText(place.address)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
-                .setSmallIcon(R.drawable.biedronka)
+                .setSmallIcon(R.drawable.small)
                 .build();
 
         notificationManager.notify(0, notification);
