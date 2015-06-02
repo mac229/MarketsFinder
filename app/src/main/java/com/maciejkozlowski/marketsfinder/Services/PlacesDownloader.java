@@ -40,7 +40,7 @@ import java.util.Scanner;
 public class PlacesDownloader extends IntentService {
 
     public static final String PLACE_DOWNLOADER_SERVICE_NAME =
-            "com.maciejkozlowski.marketsfinder.PLACE_DOWNLOADER_SERVICE_NAME";
+            "com.maciejkozlowski.marketsfinder.NOTIFICATION_SERVICE_NAME";
 
     public PlacesDownloader() {
         super(PLACE_DOWNLOADER_SERVICE_NAME);
