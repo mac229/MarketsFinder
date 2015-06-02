@@ -8,6 +8,7 @@ import com.maciejkozlowski.marketsfinder.Data.Place;
 import com.maciejkozlowski.marketsfinder.Helpers.PlacesReader;
 import com.maciejkozlowski.marketsfinder.Localization.MyLocation;
 import com.maciejkozlowski.marketsfinder.MapsActivity;
+import com.maciejkozlowski.marketsfinder.PlaceDetailsActivity;
 import com.maciejkozlowski.marketsfinder.Receivers.NotificationReceiver;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class NotificationService extends IntentService {
         while (work) {
             for (int i = 0; i < places.size(); i++)
                 if (isNearby(places.get(i))) {
-                    sendInformation();
+                    sendInformation(places.get(i));
                     wait(300000);
                 }
             wait(60000);
@@ -46,8 +47,9 @@ public class NotificationService extends IntentService {
         return (lat < MAX_DISTANCE && lon < MAX_DISTANCE);
     }
 
-    private void sendInformation(){
+    private void sendInformation(Place place){
         Intent intent = new Intent(NotificationReceiver.ACTION_GETTED_NOTIFICATION);
+        intent.putExtra(PlaceDetailsActivity.PLACE_EXTRA, place);
         sendBroadcast(intent);
     }
 
