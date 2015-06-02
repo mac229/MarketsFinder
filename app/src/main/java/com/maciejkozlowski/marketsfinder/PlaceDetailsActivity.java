@@ -6,19 +6,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.maciejkozlowski.marketsfinder.Data.Place;
+
 
 public class PlaceDetailsActivity extends ActionBarActivity {
+
+    public static String PLACE_EXTRA = "place";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_place_details);
 
-        Bundle extras = getIntent().getExtras();
-        String title = extras.getString("name");
+
+        Place place = getIntent().getParcelableExtra(PLACE_EXTRA);
 
         TextView textView = (TextView) findViewById(R.id.text_address);
-        textView.setText(title);
+        textView.setText(place.address);
     }
 
     @Override

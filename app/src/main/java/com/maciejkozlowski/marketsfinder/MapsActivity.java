@@ -6,8 +6,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,6 +25,8 @@ import com.maciejkozlowski.marketsfinder.Localization.MyLocation;
 import com.maciejkozlowski.marketsfinder.Services.PlacesDownloader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.WeakHashMap;
 
 public class MapsActivity extends FragmentActivity {
 
@@ -57,19 +62,20 @@ public class MapsActivity extends FragmentActivity {
 
     private void setMarkers() {
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(MyLocation.lat, MyLocation.lon), 12.0f));
-
+        final HashMap<String, Place> hashMap = new HashMap <String, Place>();
         if (map != null) {
             for (int i = 0; i < places.size(); i++) {
                 MarkerOptions marker = new MarkerOptions().position(
                         new LatLng(places.get(i).lat, places.get(i).lon));
-                map.addMarker(marker);
+                Marker m = map.addMarker(marker);
+                hashMap.put(m.getId(), places.get(i));
             }
 
             map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
                     Intent intent = new Intent(getApplicationContext(), PlaceDetailsActivity.class);
-                    intent.putExtra("name", marker.getTitle());
+                    intent.putExtra(PlaceDetailsActivity.PLACE_EXTRA, hashMap.get(marker.getId()));
                     startActivity(intent);
                     return false;
                 }
