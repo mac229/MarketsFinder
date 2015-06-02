@@ -4,6 +4,7 @@ package com.maciejkozlowski.marketsfinder.Services;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.ConnectivityManager;
@@ -39,6 +40,7 @@ import java.util.Scanner;
 
 public class PlacesDownloader extends IntentService {
 
+    public static final String MY_PREFS_NAME = "PREFS_PROVINCE";
     public static final String PLACE_DOWNLOADER_SERVICE_NAME =
             "com.maciejkozlowski.marketsfinder.PLACE_DOWNLOADER_SERVICE_NAME";
 
@@ -49,11 +51,30 @@ public class PlacesDownloader extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        JSONObject jsonLocationInfo;
-
-        while (MyLocation.lat == 0);
+        while (MyLocation.lat == 0){
+            Log.i("#hashtag", "NIE POBRANO JESZCZE LOKALIZACJI");
+        }
         MyLocation.province = getProvince();
-        Log.i("#hashtag", MyLocation.province);
+
+        // TODO: 1. class shared preferences
+        // TODO: 2. first run
+        // TODO: 3. dialog
+
+        if (MyLocation.province.equals("")) {
+            Log.i("##hashtag", "NO PROVINCE 1");
+            SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+            MyLocation.province = prefs.getString("province", null);
+            if (MyLocation.province == null) {
+                Log.i("##hashtag", "NO PROVINCE 1");
+                sendInformation();
+                return;
+            }
+        } else {
+            SharedPreferences.Editor editor = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE).edit();
+            editor.putString("province", MyLocation.province);
+            editor.apply();
+        }
+        Log.i("##hashtag", MyLocation.province);
 
         if (isWifiConnected()){
             getMarketsList();
@@ -69,7 +90,6 @@ public class PlacesDownloader extends IntentService {
 
     private String getProvince(){
         String result = "";
-
         JSONObject jsonObject = getLocationInfo();
         result = getProvinceFromJSON(jsonObject);
 
@@ -101,7 +121,6 @@ public class PlacesDownloader extends IntentService {
         try {
             jsonObject = new JSONObject(stringBuilder.toString());
         } catch (JSONException e) {
-            Log.i("#hashtag", e.toString());
             e.printStackTrace();
         }
         return jsonObject;
@@ -110,10 +129,17 @@ public class PlacesDownloader extends IntentService {
     private String getProvinceFromJSON(JSONObject jsonObject) {
         String result = "";
         try {
-            result = ((JSONArray) jsonObject.get("results")).getJSONObject(0)
-                    .getJSONArray("address_components").getJSONObject(5)
-                    .getString("long_name");
+            JSONArray jsonArray = jsonObject.getJSONArray("results").getJSONObject(0)
+                    .getJSONArray("address_components");
 
+            for (int i = 0; i < jsonArray.length(); i++) {
+                String type = jsonArray.getJSONObject(i).getJSONArray("types").getString(0);
+                if (type.equals("administrative_area_level_1")){
+                    result = jsonArray.getJSONObject(i).getString("long_name");
+                    break;
+                }
+
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

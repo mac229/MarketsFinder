@@ -49,7 +49,6 @@ public class PlacesReader {
         if (jsonObject != null) {
             try {
                 JSONArray jsonArrayPlaces = jsonObject.getJSONArray("Items");
-                Log.i("#hashtag", String.valueOf(jsonArrayPlaces.length()));
                 for (int i = 0; i < jsonArrayPlaces.length(); i++) {
                     JSONObject jsonPlace = jsonArrayPlaces.getJSONObject(i);
                     Place place = new Place();
@@ -64,8 +63,6 @@ public class PlacesReader {
                 e.printStackTrace();
             }
         }
-
         return list;
     }
-
 }
