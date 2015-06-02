@@ -4,13 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,17 +17,18 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.maciejkozlowski.marketsfinder.Data.Place;
 import com.maciejkozlowski.marketsfinder.Helpers.PlacesReader;
 import com.maciejkozlowski.marketsfinder.Localization.MyLocation;
+import com.maciejkozlowski.marketsfinder.Services.NotificationService;
 import com.maciejkozlowski.marketsfinder.Services.PlacesDownloader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.WeakHashMap;
 
 public class MapsActivity extends FragmentActivity {
 
-    public static final String ACTION_GETTED_DATA = "com.maciejkozlowski.kfdpl.ACTION_GETTED_DATA";
+    public static final String ACTION_GETTED_DATA =
+            "com.maciejkozlowski.MarketsFinder.ACTION_GETTED_NOTIFICATION";
     private GoogleMap map;
-    private ArrayList<Place> places = new ArrayList<>();
+    private ArrayList<Place> places;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +45,7 @@ public class MapsActivity extends FragmentActivity {
             places = PlacesReader.getPlaces(context);
             Toast.makeText(context, "Wczytano: " + places.size(), Toast.LENGTH_SHORT).show();
             setMarkers();
+            startNotificationSystem();
         }
     };
 
@@ -85,6 +82,11 @@ public class MapsActivity extends FragmentActivity {
 
     private void startPlacesDownloader(){
         Intent intentService = new Intent(getApplicationContext(), PlacesDownloader.class);
+        startService(intentService);
+    }
+
+    private void startNotificationSystem(){
+        Intent intentService = new Intent(getApplicationContext(), NotificationService.class);
         startService(intentService);
     }
 
